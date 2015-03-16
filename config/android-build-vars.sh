@@ -1,10 +1,10 @@
 # Update the following for your flavor of Android  
 ######################################################################## 
-## Example - these parameters will build the kk (KitKat) branch of     #
-##           CarbonRom for the Nexus 5                                 #
-# BUILD_NAME="CarbonRom"                                               #
-# REPO="git://github.com/CarbonDev/android.git"                        #
-# BRANCH="kk"                                                          #
+## Example - these parameters will build the android-5.0 (lollipop)    #
+##           branch of OmniRom for the Nexus 5                         #
+# BUILD_NAME="OmniRom"                                                 #
+# REPO="git://github.com/omnirom/android.git"                          #
+# BRANCH="android-5.0"                                                 #
 # DEVICE="hammerhead"                                                  #
 ######################################################################## 
 BUILD_NAME="Android"
