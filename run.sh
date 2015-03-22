@@ -1,5 +1,6 @@
 #!/bin/bash
-source $(dirname $0)/config/android-build-vars.sh
+MY_DIR=$(dirname $0)
+source ${MY_DIR}/config/android-build-vars.sh
 
 BUILD_NAME_LC=$(echo $BUILD_NAME | tr '[A-Z]' '[a-z]')
 
@@ -35,8 +36,8 @@ if [ $? -ne 0 ]; then
 	exit $?
 elif [[ -z $IMAGE_EXISTS ]]; then
 	echo "Building Docker image $IMAGE_NAME..."
-	docker build --no-cache --rm -t android-builder-base dockerfiles/android-builder-base && \
-	  docker build --no-cache --rm -t "$IMAGE_NAME" dockerfiles/$IMAGE_NAME && \
+	docker build --no-cache --rm -t android-builder-base ${MY_DIR}/dockerfiles/android-builder-base && \
+	  docker build --no-cache --rm -t "$IMAGE_NAME" ${MY_DIR}/dockerfiles/$IMAGE_NAME && \
 	  docker rmi android-builder-base 
 fi
 
