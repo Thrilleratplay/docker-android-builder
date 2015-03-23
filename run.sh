@@ -32,6 +32,14 @@ if [ "$MY_DIR" != "$(pwd)" ]; then
         cp -r "${MY_DIR}/config" .
 fi
 
+# This is left here commented out, use it in case you have selinux
+# and your docker doesn't yet understand the :Z values for volumes
+# that are used at docker run command at the bottom.
+#if [ "$(getenforce)" == "Enforcing" ]; then
+#        echo "We need sudo for selinux changes, possibly asking password next."
+#        sudo chcon -R -t svirt_sandbox_file_t config "${BUILD_NAME}_ccache" "$BUILD_NAME"
+#fi
+
 # Build image if needed
 IMAGE_EXISTS=$(docker images -q $IMAGE_NAME)
 if [ $? -ne 0 ]; then
@@ -52,9 +60,9 @@ if [[ $IS_RUNNING == "true" ]]; then
 elif [[ $IS_RUNNING == "false" ]]; then
 	docker start -i $CONTAINER_NAME
 else
-	docker run -v $HOST_SOURCE:$DOCKER_SOURCE \
-			   -v $HOST_CCACHE:$DOCKER_CCACHE \
-			   -v $HOST_CONFIG:$DOCKER_CONFIG \
+	docker run -v ${HOST_SOURCE}:${DOCKER_SOURCE}:Z \
+			   -v ${HOST_CCACHE}:${DOCKER_CCACHE}:Z \
+			   -v ${HOST_CONFIG}:${DOCKER_CONFIG}:Z \
 			   -i -t --name $CONTAINER_NAME $IMAGE_NAME \
 			   bash -c "byobu"
 fi
