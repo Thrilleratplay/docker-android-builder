@@ -1,6 +1,6 @@
 #!/bin/bash
 MY_DIR=$(dirname $0)
-source ${MY_DIR}/config/android-build-vars.sh
+source ${MY_DIR}/config/config-vars.sh
 
 BUILD_NAME_LC=$(echo $BUILD_NAME | tr '[A-Z]' '[a-z]')
 
@@ -8,30 +8,28 @@ BUILD_NAME_LC=$(echo $BUILD_NAME | tr '[A-Z]' '[a-z]')
 HOST_SOURCE=$(pwd)/$BUILD_NAME
 HOST_CCACHE=$(pwd)/$BUILD_NAME"_ccache"
 HOST_CONFIG=$(pwd)/config
+HOST_LOCAL_MANIFESTS=$(pwd)/local_manifests
 
 DOCKER_SOURCE="/root/android"
 DOCKER_CCACHE="/srv/ccache"
 DOCKER_CONFIG="/root/config"
+DOCKER_LOCAL_MANIFESTS="/root/android/.repo/local_manifests"
 
 CONTAINER_NAME=$BUILD_NAME_LC"_"$BRANCH
-
-if [[ $USE_ORACLE_JAVA == "true" ]]; then
-	IMAGE_NAME="android-builder-oracle"
-else 
-	IMAGE_NAME="android-builder-openjdk"
-fi
+IMAGE_NAME="android-builder"
 
 # Create shared folders then have git and docker ignore them
 mkdir -p $HOST_SOURCE
 mkdir -p $HOST_CCACHE
-grep -q "/$BUILD_NAME" .gitignore || echo "/$BUILD_NAME" >> .gitignore 
+grep -q "/$BUILD_NAME" .gitignore || echo "/$BUILD_NAME" >> .gitignore
 grep -q "/"$BUILD_NAME"_ccache" .gitignore || echo "/"$BUILD_NAME"_ccache" >> .gitignore
-grep -q "$BUILD_NAME" .dockerignore  || echo "$BUILD_NAME" >> .dockerignore 
-grep -q $BUILD_NAME"_ccache" .dockerignore || echo $BUILD_NAME"_ccache" >> .dockerignore 
-if [ "$MY_DIR" != "$(pwd)" ]; then
-        cp -r "${MY_DIR}/config" .
-fi
+grep -q "$BUILD_NAME" .dockerignore  || echo "$BUILD_NAME" >> .dockerignore
+grep -q $BUILD_NAME"_ccache" .dockerignore || echo $BUILD_NAME"_ccache" >> .dockerignore
 
+# Check if local_manifests exists
+if [ ! -d "local_manifests" ]; then
+  mkdir local_manifests;
+fi
 
 # Build image if needed
 IMAGE_EXISTS=$(docker images -q $IMAGE_NAME)
@@ -40,9 +38,7 @@ if [ $? -ne 0 ]; then
 	exit $?
 elif [[ -z $IMAGE_EXISTS ]]; then
 	echo "Building Docker image $IMAGE_NAME..."
-	docker build --no-cache --rm -t android-builder-base ${MY_DIR}/dockerfiles/android-builder-base && \
-	  docker build --no-cache --rm -t "$IMAGE_NAME" ${MY_DIR}/dockerfiles/$IMAGE_NAME && \
-	  docker rmi android-builder-base 
+	docker build --no-cache --rm -t "$IMAGE_NAME" .
 fi
 
 # With the given name $CONTAINER_NAME, reconnect to running container, start
@@ -53,23 +49,12 @@ if [[ $IS_RUNNING == "true" ]]; then
 elif [[ $IS_RUNNING == "false" ]]; then
 	docker start -i $CONTAINER_NAME
 else
-        if [ -x /usr/sbin/getenforce -a "$(getenforce)" == "Enforcing" ]; then
-                echo "We need sudo for selinux changes, possibly asking password next."
-                sudo chcon -R -t svirt_sandbox_file_t config "${BUILD_NAME}_ccache" "$BUILD_NAME"
-                # This is left here commented out, use it in case you have selinux
-                # and your docker already understands the :Z values for volumes
-                # and you can remove the above sudo line
-                #docker run -v ${HOST_SOURCE}:${DOCKER_SOURCE}:Z \
-                #		   -v ${HOST_CCACHE}:${DOCKER_CCACHE}:Z \
-                #		   -v ${HOST_CONFIG}:${DOCKER_CONFIG}:Z \
-                #		   -i -t --name $CONTAINER_NAME $IMAGE_NAME \
-                #		   bash -c "byobu"
-        fi
 	docker run -v ${HOST_SOURCE}:${DOCKER_SOURCE} \
 			   -v ${HOST_CCACHE}:${DOCKER_CCACHE} \
 			   -v ${HOST_CONFIG}:${DOCKER_CONFIG} \
+         -v ${HOST_LOCAL_MANIFESTS}:${DOCKER_LOCAL_MANIFESTS} \
 			   -i -t --name $CONTAINER_NAME $IMAGE_NAME \
-			   bash -c "byobu"
+			   bash
 fi
 
 exit $?

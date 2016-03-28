@@ -1,6 +1,4 @@
 #!/bin/bash
-source /root/config/android-build-vars.sh 
-
 cd /root/android
 
 repo init -u $REPO -b $BRANCH
@@ -17,5 +15,3 @@ else
   DEVICE_LC=$(echo $DEVICE | tr '[A-Z]' '[a-z]')
   brunch $DEVICE
 fi
-
-
