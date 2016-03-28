@@ -8,7 +8,7 @@ BUILD_NAME_LC=$(echo $BUILD_NAME | tr '[A-Z]' '[a-z]')
 HOST_SOURCE=$(pwd)/$BUILD_NAME
 HOST_CCACHE=$(pwd)/$BUILD_NAME"_ccache"
 HOST_CONFIG=$(pwd)/config
-HOST_LOCAL_MANIFESTS=$(pwd)/local_manifests
+HOST_LOCAL_MANIFESTS=$(pwd)/$BUILD_NAME"_local_manifests"
 
 DOCKER_SOURCE="/root/android"
 DOCKER_CCACHE="/srv/ccache"
@@ -23,12 +23,14 @@ mkdir -p $HOST_SOURCE
 mkdir -p $HOST_CCACHE
 grep -q "/$BUILD_NAME" .gitignore || echo "/$BUILD_NAME" >> .gitignore
 grep -q "/"$BUILD_NAME"_ccache" .gitignore || echo "/"$BUILD_NAME"_ccache" >> .gitignore
+grep -q "/"$BUILD_NAME"_local_manifests" .gitignore || echo "/"$BUILD_NAME"_local_manifests" >> .gitignore
 grep -q "$BUILD_NAME" .dockerignore  || echo "$BUILD_NAME" >> .dockerignore
 grep -q $BUILD_NAME"_ccache" .dockerignore || echo $BUILD_NAME"_ccache" >> .dockerignore
+grep -q $BUILD_NAME"_local_manifests" .dockerignore || echo $BUILD_NAME"_local_manifests" >> .dockerignore
 
 # Check if local_manifests exists
-if [ ! -d "local_manifests" ]; then
-  mkdir local_manifests;
+if [ ! -d $HOST_LOCAL_MANIFESTS ]; then
+  mkdir $HOST_LOCAL_MANIFESTS;
 fi
 
 # Build image if needed
