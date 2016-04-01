@@ -16,7 +16,7 @@ RUN \
                      libreadline6-dev python-markdown schedtool curl git \
                      squashfs-tools x11proto-core-dev xsltproc liblz4-tool \
                      libxml2-utils gperf bison g++-multilib zlib1g-dev \
-                     openjdk-7-jdk openjdk-7-jre
+                     bsdmainutils openjdk-7-jdk openjdk-7-jre
 
 ## Add Repo
 RUN curl http://commondatastorage.googleapis.com/git-repo-downloads/repo > /bin/repo && \
