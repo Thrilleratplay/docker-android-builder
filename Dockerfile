@@ -1,22 +1,25 @@
 ## Build environment for Android Open Source Project development
 
-## from Trusted Ubuntu 14.04
-FROM ubuntu:14.04
+## from Trusted Ubuntu 16.04
+FROM ubuntu:16.04
 MAINTAINER Tom Hiller
 
 ENV DEBIAN_FRONTEND noninteractive
 
 RUN \
   apt-get -qq -y update && \
-  apt-get install -y file dpkg-dev ccache lzop mingw32 pngcrush nano zip \
-                     lib32z1-dev lib32ncurses5-dev lib32readline-gplv2-dev \
-                     libbz2-1.0 libbz2-dev lib32bz2-1.0 lib32bz2-dev \
+  apt-get install -y software-properties-common python-software-properties && \
+  add-apt-repository ppa:openjdk-r/ppa && \
+  apt-get -qq -y update && \
+  apt-get install -y file dpkg-dev ccache lzop pngcrush nano zip g++-multilib \
+                     lib32z1-dev lib32ncurses5-dev libbz2-1.0 libbz2-dev optipng\
                      python2.7-minimal python-markdown libc6-dev flex tofrodos \
-                     libghc-bzlib-dev libgl1-mesa-dev libncurses5-dev \
+                     libghc-bzlib-dev libgl1-mesa-dev libncurses5-dev zlib1g-dev \
                      libreadline6-dev python-markdown schedtool curl git \
                      squashfs-tools x11proto-core-dev xsltproc liblz4-tool \
-                     libxml2-utils gperf bison g++-multilib zlib1g-dev \
-                     bsdmainutils openjdk-7-jdk openjdk-7-jre
+                     libxml2-utils gperf bison bsdmainutils openjdk-7-jdk \
+                     openjdk-7-jre android-tools-adb android-tools-fastboot \
+                     policycoreutils
 
 ## Add Repo
 RUN curl http://commondatastorage.googleapis.com/git-repo-downloads/repo > /bin/repo && \
