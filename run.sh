@@ -51,11 +51,13 @@ if [[ $IS_RUNNING == "true" ]]; then
 elif [[ $IS_RUNNING == "false" ]]; then
 	docker start -i $CONTAINER_NAME
 else
-	docker run -v ${HOST_SOURCE}:${DOCKER_SOURCE} \
-			   -v ${HOST_CCACHE}:${DOCKER_CCACHE} \
-			   -v ${HOST_CONFIG}:${DOCKER_CONFIG} \
-         -v ${HOST_LOCAL_MANIFESTS}:${DOCKER_LOCAL_MANIFESTS} \
-			   -i -t --name $CONTAINER_NAME $IMAGE_NAME \
+	docker run --privileged \
+		   -v ${HOST_SOURCE}:${DOCKER_SOURCE} \
+		   -v ${HOST_CCACHE}:${DOCKER_CCACHE} \
+		   -v ${HOST_CONFIG}:${DOCKER_CONFIG} \
+		   -v ${HOST_LOCAL_MANIFESTS}:${DOCKER_LOCAL_MANIFESTS} \
+		   -v /dev/bus/usb:/dev/bus/usb \
+		   -i -t --name $CONTAINER_NAME $IMAGE_NAME \
 			   bash
 fi
 
