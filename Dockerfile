@@ -1,22 +1,25 @@
 ## Build environment for Android Open Source Project development
 
 ## from Trusted Ubuntu 14.04
-FROM ubuntu:14.04
+FROM ubuntu:16.04
 MAINTAINER Tom Hiller
 
 ENV DEBIAN_FRONTEND noninteractive
 
+# mingw32  lib32readline-gplv2-dev lib32bz2-1.0 libbz2-dev lib32bz2-dev
+
 RUN \
   apt-get -qq -y update && \
-  apt-get install -y file dpkg-dev ccache lzop mingw32 pngcrush nano zip \
-                     lib32z1-dev lib32ncurses5-dev lib32readline-gplv2-dev \
-                     libbz2-1.0 libbz2-dev lib32bz2-1.0 lib32bz2-dev \
+  apt-get install -y file dpkg-dev ccache lzop pngcrush nano zip \
+                     lib32z1-dev lib32ncurses5-dev \
+                     libbz2-1.0 bc \
                      python2.7-minimal python-markdown libc6-dev flex tofrodos \
                      libghc-bzlib-dev libgl1-mesa-dev libncurses5-dev \
                      libreadline6-dev python-markdown schedtool curl git \
                      squashfs-tools x11proto-core-dev xsltproc liblz4-tool \
                      libxml2-utils gperf bison g++-multilib zlib1g-dev \
-                     bsdmainutils openjdk-7-jdk openjdk-7-jre
+                     bsdmainutils openjdk-8-jdk openjdk-8-jre &&\
+apt-get clean
 
 ## Add Repo
 RUN curl http://commondatastorage.googleapis.com/git-repo-downloads/repo > /bin/repo && \
@@ -36,9 +39,16 @@ RUN echo 'alias build-android="/root/config/build-android.sh"' >> /etc/bash.bash
 RUN echo '. /root/config/git-config.sh' >> /etc/bash.bashrc
 
 ## Set ccache settings
-RUN echo "export USE_CCACHE=1" >> /etc/bash.bashrc && \
-    echo "export CCACHE_DIR=/srv/ccache" >> /etc/bash.bashrc && \
-    CCACHE_DIR=/srv/ccache ccache -M 50G
+RUN echo 'export USE_CCACHE=1' >> /etc/bash.bashrc && \
+    echo 'export CCACHE_DIR=/srv/ccache' >> /etc/bash.bashrc && \
+    ccache -M 50G
+
+## Auto load source build/envsetup.sh if it exists
+RUN echo 'source build/envsetup.sh 2>/dev/null' >> /etc/bash.bashrc
+
+## DANGER: Disable Git SSL verification
+# http://stackoverflow.com/questions/21181231/server-certificate-verification-failed-cafile-etc-ssl-certs-ca-certificates-c
+RUN echo 'export GIT_SSL_NO_VERIFY=1' >> /etc/bash.bashrc
 
 WORKDIR /root/android
 VOLUME /root/android

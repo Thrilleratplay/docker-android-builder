@@ -40,7 +40,7 @@ if [ $? -ne 0 ]; then
 	exit $?
 elif [[ -z $IMAGE_EXISTS ]]; then
 	echo "Building Docker image $IMAGE_NAME..."
-	docker build --no-cache --rm -t "$IMAGE_NAME" .
+	docker build --no-cache --rm -t "$IMAGE_NAME" ./
 fi
 
 # With the given name $CONTAINER_NAME, reconnect to running container, start
